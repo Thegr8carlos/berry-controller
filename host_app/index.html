@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Center Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+        }
+        .neon-border {
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 10px #00ff88, inset 0 0 10px rgba(0, 255, 136, 0.1);
+        }
+        .neon-text {
+            text-shadow: 0 0 5px #00ff88, 0 0 10px #00ff88;
+        }
+        .cyber-card {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        .cyber-btn {
+            background: linear-gradient(45deg, #00ff88, #0088ff);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .cyber-btn:hover {
+            box-shadow: 0 0 15px #00ff88;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold neon-text">🧠 CONTROL CENTER</h1>
+        <p class="text-lg text-gray-400">TuringBerry Admin Interface</p>
+    </header>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- List Processes -->
+        <div class="cyber-card p-6 rounded-lg neon-border cursor-pointer" onclick="handleAction('list-processes')">
+            <div class="text-center">
+                <div class="text-6xl mb-4">⚙️</div>
+                <h3 class="text-xl font-bold neon-text">List Processes</h3>
+                <p class="text-sm text-gray-400 mt-2">View running system processes</p>
+            </div>
+        </div>
+
+        <!-- Projects -->
+        <div class="cyber-card p-6 rounded-lg neon-border cursor-pointer" onclick="handleAction('projects')">
+            <div class="text-center">
+                <div class="text-6xl mb-4">📁</div>
+                <h3 class="text-xl font-bold neon-text">Projects</h3>
+                <p class="text-sm text-gray-400 mt-2">Manage your development projects</p>
+            </div>
+        </div>
+
+        <!-- Terminal -->
+        <div class="cyber-card p-6 rounded-lg neon-border cursor-pointer" onclick="handleAction('terminal')">
+            <div class="text-center">
+                <div class="text-6xl mb-4">💻</div>
+                <h3 class="text-xl font-bold neon-text">Terminal</h3>
+                <p class="text-sm text-gray-400 mt-2">Execute shell commands</p>
+            </div>
+        </div>
+
+        <!-- Cloudflare Tunnel -->
+        <div class="cyber-card p-6 rounded-lg neon-border cursor-pointer" onclick="handleAction('tunnel')">
+            <div class="text-center">
+                <div class="text-6xl mb-4">🌐</div>
+                <h3 class="text-xl font-bold neon-text">Cloudflare Tunnel</h3>
+                <p class="text-sm text-gray-400 mt-2">Launch public tunnel</p>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="cyber-card p-6 rounded-lg neon-border cursor-pointer" onclick="handleAction('status')">
+            <div class="text-center">
+                <div class="text-6xl mb-4">📊</div>
+                <h3 class="text-xl font-bold neon-text">System Status</h3>
+                <p class="text-sm text-gray-400 mt-2">Check infrastructure health</p>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="cyber-card p-6 rounded-lg neon-border cursor-pointer" onclick="handleAction('logs')">
+            <div class="text-center">
+                <div class="text-6xl mb-4">📋</div>
+                <h3 class="text-xl font-bold neon-text">Logs</h3>
+                <p class="text-sm text-gray-400 mt-2">View system logs</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Terminal -->
+    <div id="terminal-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
+        <div class="cyber-card p-6 rounded-lg neon-border w-full max-w-2xl mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold neon-text">Terminal</h3>
+                <button onclick="closeModal()" class="text-red-400 hover:text-red-300">✕</button>
+            </div>
+            <div id="terminal-output" class="bg-black text-green-400 p-4 rounded h-64 overflow-y-auto font-mono text-sm mb-4"></div>
+            <div class="flex">
+                <input id="command-input" type="text" class="flex-1 p-2 bg-gray-800 rounded-l border-r border-gray-600" placeholder="Enter command...">
+                <button id="execute-btn" class="cyber-btn px-4 py-2 rounded-r">Execute</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center mt-8 text-gray-500">
+        <p>Secure Access via Tailscale | v0.1</p>
+    </footer>
+
+    <script>
+        function handleAction(action) {
+            switch(action) {
+                case 'terminal':
+                    document.getElementById('terminal-modal').classList.remove('hidden');
+                    break;
+                default:
+                    alert(`Action: ${action} - Coming soon!`);
+                    console.log(`Triggered: ${action}`);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('terminal-modal').classList.add('hidden');
+        }
+
+        document.getElementById('execute-btn').addEventListener('click', async () => {
+            const command = document.getElementById('command-input').value;
+            if (!command) return;
+            logToTerminal(`> ${command}`);
+            try {
+                const response = await fetch('/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command })
+                });
+                const result = await response.json();
+                logToTerminal(result.stdout || result.stderr || 'Executed');
+            } catch (error) {
+                logToTerminal('Error: ' + error.message);
+            }
+        });
+
+        function logToTerminal(message) {
+            const output = document.getElementById('terminal-output');
+            output.textContent += message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+    </script>
+</body>
+</html>
