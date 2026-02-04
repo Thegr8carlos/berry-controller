@@ -60,3 +60,11 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+
+node_modules/
+dist/
+build/
+.cache/
+out/
+coverage/
